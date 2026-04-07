@@ -211,12 +211,12 @@ python inference.py
 
 ### Baseline Scores (Qwen/Qwen2.5-72B-Instruct)
 
-| Task | Score | Success (≥0.6) |
+| Task | Score | Success (≥0.7) |
 |---|---|---|
-| task1 — easy   | ~0.72 | ✓ |
-| task2 — medium | ~0.65 | ✓ |
-| task3 — hard   | ~0.55 | ✗ |
-| **Optimal agent** | **0.961 mean** | — |
+| task1 — easy   | ~0.83 | ✓ |
+| task2 — medium | ~0.82 | ✓ |
+| task3 — hard   | ~0.65 | ✓ |
+| **Optimal agent** | **0.80 mean** | — |
 
 ---
 
