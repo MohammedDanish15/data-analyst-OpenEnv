@@ -1,0 +1,129 @@
+name: data-analyst-env
+version: "1.0.0"
+description: >
+  RL environment simulating a junior data analyst working on real e-commerce datasets.
+  The agent must explore, clean, transform, and extract insights from messy sales data
+  to produce a structured analytical report.
+author: "Data Analyst Env"
+tags:
+  - data-analysis
+  - e-commerce
+  - cleaning
+  - openenv
+  - real-world
+
+tasks:
+  - id: task1
+    name: "Missing Value Fixing"
+    difficulty: easy
+    description: >
+      Explore a 200-row e-commerce dataset and fill missing values
+      in the 'age' and 'total_price' columns. Submit a report.
+    max_steps: 25
+    success_threshold: 0.5
+
+  - id: task2
+    name: "Full Cleaning + Transformation"
+    difficulty: medium
+    description: >
+      Clean a 500-row dataset with missing values, impossible outliers,
+      inconsistent gender labels, and bad product categories.
+      Encode categoricals, apply normalization, submit report.
+    max_steps: 25
+    success_threshold: 0.5
+
+  - id: task3
+    name: "Full Analysis + Insight Generation"
+    difficulty: hard
+    description: >
+      Perform complete cleaning on a 1000-row dataset with hidden correlations
+      (discount vs return_flag, Electronics vs return rate, CLV vs spend).
+      Discover patterns, generate >=3 structured JSON insights, submit report.
+    max_steps: 25
+    success_threshold: 0.5
+
+observation_space:
+  type: object
+  description: "Structured observation of the current dataset and agent state"
+  fields:
+    - name: dataset_metadata
+      type: object
+      fields:
+        - {name: total_rows,      type: integer}
+        - {name: total_columns,   type: integer}
+        - {name: missing_counts,  type: object}
+        - {name: numeric_summary, type: object}
+        - {name: column_types,    type: object}
+    - name: task_stage
+      type: string
+      enum: [exploration, cleaning, transformation, analysis, reporting]
+    - name: environment_health
+      type: object
+      fields:
+        - {name: step_number,          type: integer}
+        - {name: invalid_action_count, type: integer}
+        - {name: data_quality_score,   type: number, minimum: 0.0, maximum: 1.0}
+    - name: agent_progress
+      type: object
+      fields:
+        - {name: progress_percentage, type: number}
+        - {name: intermediate_score,  type: number, minimum: 0.0, maximum: 1.0}
+    - name: last_action_result
+      type: object
+    - name: task_id
+      type: string
+    - name: task_description
+      type: string
+
+action_space:
+  type: object
+  fields:
+    - name: action_type
+      type: string
+      enum:
+        - view_head
+        - view_statistics
+        - view_column_types
+        - view_correlations
+        - fill_missing_mean
+        - fill_missing_median
+        - drop_missing_rows
+        - detect_outliers
+        - remove_outliers
+        - normalize
+        - standardize
+        - encode_categorical
+        - apply_minmax_scaling
+        - find_top_correlations
+        - generate_summary
+        - generate_insights
+        - submit_report
+        - end_episode
+    - name: params
+      type: object
+      required: false
+      description: >
+        Optional parameters. Examples:
+          fill_missing_mean:  {"column": "age"}
+          remove_outliers:    {"column": "age"}
+          generate_insights:  {"insights": [{"finding": "...", "metric": "...", "value": ...}]}
+
+reward:
+  type: number
+  minimum: 0.0
+  maximum: 1.0
+  description: >
+    Step rewards range 0.0–0.20 depending on action usefulness.
+    Final submit_report reward is (cleanliness + correctness + insight) / 3.
+
+endpoints:
+  reset: "POST /reset?task_id={task_id}"
+  step:  "POST /step?task_id={task_id}"
+  state: "GET  /state?task_id={task_id}"
+  tasks: "GET  /tasks"
+  health:"GET  /health"
+
+runtime:
+  framework: fastapi
+  python: ">=3.10"
+  port: 7860
